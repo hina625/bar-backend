@@ -9,6 +9,7 @@ import simplifyRoute from './routes/simplify.js';
 import ttsRoute from './routes/tts.js';
 import translateRoute from './routes/translate.js';
 import voiceCommandRoute from './routes/voiceCommand.js';
+import feedbackRoute from './routes/feedback.js';
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use('/api/simplify', simplifyRoute);
 app.use('/api/tts', ttsRoute);
 app.use('/api/translate', translateRoute);
 app.use('/api/voice-command', voiceCommandRoute);
+app.use('/api/feedback', feedbackRoute);
 
 app.get('/', (req, res) => {
     res.send('Accessibility Bar Backend is running');

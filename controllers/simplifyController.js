@@ -8,7 +8,7 @@ class SimplifyController {
                 return res.status(400).json({ error: 'Text content is required' });
             }
 
-            // Truncate text if too long to avoid token limits (approx 15k chars is safe for gpt-3.5-turbo context usually, but keeping it safer at 12k)
+          
             const safeText = text.substring(0, 12000);
 
             const prompt = `

@@ -4,9 +4,6 @@ import { sendFeedbackEmail } from '../services/emailService.js';
 
 const router = express.Router();
 
-// @route   POST api/feedback
-// @desc    Submit feedback
-// @access  Public
 router.post('/', async (req, res) => {
     try {
         const { name, email, rating, answers, comment } = req.body;
@@ -25,8 +22,7 @@ router.post('/', async (req, res) => {
 
         const feedback = await newFeedback.save();
 
-        // Send email notification (don't await so response isn't delayed, 
-        // or await if you want to ensure it's sent)
+   
         try {
             await sendFeedbackEmail({ name, email, rating, answers, comment });
         } catch (mailErr) {

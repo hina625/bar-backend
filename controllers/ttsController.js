@@ -9,7 +9,7 @@ class TtsController {
                 return res.status(400).json({ error: 'Text content is required' });
             }
 
-            // Limit text length to avoid timeouts/limits (OpenAI limit is 4096 chars)
+       
             const safeText = text.substring(0, 4000);
 
             const audioedBuffer = await openaiService.streamAudio(safeText, voice, speed);

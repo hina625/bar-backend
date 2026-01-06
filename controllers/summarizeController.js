@@ -10,7 +10,7 @@ class SummarizeController {
         }
 
         try {
-            // Updated prompt to get Summary + Simplified Summary + Acronyms in JSON
+
             const prompt = `
             Analyze the following text and provide:
             1. A comprehensive summary.
@@ -33,14 +33,17 @@ class SummarizeController {
             const simplifiedSummary = data.simplified_summary;
             const acronyms = data.acronyms || {};
 
-            // Save to history
+
+            // Optional: Save to history without blocking the response
+
+            // Fire-and-forget save to history (don't await)
             const summaryEntry = new Summary({
                 originalText: text,
                 summaryText: summaryText,
-                // We could save simplifiedSummary too if we update the model, but for now we'll just save the main one
-                // or maybe save a JSON string if we want to be fancy, but let's stick to the text for compatibility.
             });
-            await summaryEntry.save();
+            summaryEntry.save().catch(dbError => {
+                console.error('Database Save Error (Summarization history):', dbError.message);
+            });
 
             res.json({
                 summary: summaryText,

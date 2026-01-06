@@ -16,7 +16,6 @@ const transporter = nodemailer.createTransport({
 export const sendFeedbackEmail = async (feedbackData) => {
     const { name, email, rating, answers, comment } = feedbackData;
 
-    // Format answers for the email
     const formattedAnswers = Object.entries(answers)
         .map(([key, value]) => `Question ${key.replace('q', '')}: ${value ? 'Yes' : 'No'}`)
         .join('\n');
@@ -62,6 +61,48 @@ export const sendFeedbackEmail = async (feedbackData) => {
         return info;
     } catch (error) {
         console.error('Error sending feedback email:', error);
+        throw error;
+    }
+};
+
+export const sendContactEmail = async (contactData) => {
+    const { name, email, subject, message } = contactData;
+
+    const mailOptions = {
+        from: `"Accessibility Bar Contact" <${process.env.EMAIL_USER}>`,
+        to: process.env.ADMIN_EMAIL,
+        subject: `New Contact Request: ${subject || 'No Subject'}`,
+        text: `
+            You have received a new contact request:
+            
+            Name: ${name}
+            Email: ${email}
+            Subject: ${subject || 'N/A'}
+            
+            Message:
+            ${message}
+            
+            Submitted at: ${new Date().toLocaleString()}
+        `,
+        html: `
+            <h3>New Contact Request</h3>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Subject:</strong> ${subject || 'N/A'}</p>
+            <br>
+            <h4>Message:</h4>
+            <p>${message.replace(/\n/g, '<br>')}</p>
+            <br>
+            <p><small>Submitted at: ${new Date().toLocaleString()}</small></p>
+        `,
+    };
+
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Contact email sent: %s', info.messageId);
+        return info;
+    } catch (error) {
+        console.error('Error sending contact email:', error);
         throw error;
     }
 };

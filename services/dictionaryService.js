@@ -4,7 +4,7 @@ import openaiService from './openaiService.js';
 class DictionaryService {
     async getDefinition(word) {
         try {
-            // Try Free Dictionary API first
+     
             const response = await axios.get(`https://api.dictionaryapi.dev/api/v2/entries/en/${word.toLowerCase()}`);
 
             if (response.data && response.data.length > 0) {
@@ -26,7 +26,7 @@ class DictionaryService {
             console.warn(`Dictionary API failed for "${word}", falling back to AI...`);
         }
 
-        // Fallback to OpenAI
+       
         try {
             const prompt = `Define the word "${word}".
             Return a JSON object with:

@@ -19,8 +19,6 @@ export const getPronunciation = async (req, res) => {
 
         const response = await openaiService.generateCompletion(prompt, 'json_object');
 
-        // Parse the JSON string from OpenAI
-        // Sanitize string to remove markdown code blocks if present
         const jsonString = response.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```$/, '').trim();
         const data = JSON.parse(jsonString);
 

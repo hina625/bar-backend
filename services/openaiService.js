@@ -131,24 +131,28 @@ class OpenAIService {
                         role: "system",
                         content: `You are a voice command parser for website accessibility. The user will speak in any language (English, Urdu, Hindi, Arabic, etc.). 
                         
-Understand their intent and return ONLY one of these action codes:
-- scroll_down (user wants to scroll down, go down, neeche, نیچے)
-- scroll_up (user wants to scroll up, go up, upar, اوپر)
-- go_top (user wants to go to top of page)
-- go_bottom (user wants to go to bottom of page)
-- go_back (user wants to go back, previous page, wapas, واپس)
-- go_forward (user wants to go forward, next page, aage, آگے)
-- refresh (user wants to refresh, reload the page)
-- click (user wants to click current element)
-- next_link (user wants to focus next link)
-- next_button (user wants to focus next button)
-- increase_font (user wants bigger text, increase font size)
-- decrease_font (user wants smaller text, decrease font size)
-- dark_mode (user wants to toggle dark mode)
-- high_contrast (user wants to toggle high contrast)
-- none (if you cannot determine the action)
+Understand their intent and return ONLY one of these action codes. Be very flexible with synonyms and related phrases:
+- scroll_down (scroll down, go down, move down, more, niche, neeche, نیچے)
+- scroll_up (scroll up, go up, move up, less, upar, اوپر)
+- go_top (top of page, start, beginning, shuru, شروع)
+- go_bottom (bottom of page, end, finish, akhir, آخر)
+- go_back (go back, previous, return, wapas, piche, واپس, پیچھے)
+- go_forward (go forward, next, ahead, aage, آگے)
+- refresh (refresh, reload, restart page, dobara loader, تازہ کریں)
+- click (click, select, press, push, chuno, دباؤ, چنیں)
+- next_link (next link, move to link, agla link, اگلا لنک)
+- next_button (next button, move to button, agla button, اگلا بٹن)
+- increase_font (bigger text, larger font, zoom in text, bada karo, بڑا کریں)
+- decrease_font (smaller text, tiny font, zoom out text, chota karo, چھوٹا کریں)
+- dark_mode (dark mode, night mode, black theme, andhera, کالی تھیم, اندھیرا)
+- high_contrast (high contrast, sharp colors, clear view, wazeh, واضح)
+- none (if you cannot determine the action or it's just random chatter)
 
-Return ONLY the action code, nothing else.`
+IMPORTANT:
+1. Focus on the INTENT, not just literal words.
+2. If the user says something like "make it dark", map it to dark_mode.
+3. If the user says "neeche jao", map it to scroll_down.
+4. Return ONLY the lowercase action code string, no punctuation.`
                     },
                     {
                         role: "user",

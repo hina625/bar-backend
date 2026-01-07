@@ -117,55 +117,71 @@ class OpenAIService {
         }
     }
 
-    async parseVoiceCommand(text) {
+    async parseVoiceCommand(text, context) {
         try {
             const client = this.openai;
             if (!client) {
                 throw new Error('OpenAI client is not initialized.');
             }
 
+            const systemPrompt = `You are a Universal Website Control Agent. Your goal is to map user voice commands to actions on the current webpage.
+You will be provided with the user's spoken command and a context summary of the webpage (links, buttons, inputs).
+
+OUTPUT FORMAT:
+You MUST return a JSON object with one of the following structures:
+
+1. CLICK (for clicking links or buttons):
+   { "action": "click_element", "selector": "ELEMENT_ID_OR_SELECTOR" }
+
+2. TYPE (for inputting text):
+   { "action": "type_text", "selector": "INPUT_ID", "value": "TEXT_TO_TYPE" }
+
+3. NAVIGATE (for general URL navigation):
+   { "action": "navigate", "url": "FULL_URL" }
+
+4. SCROLL:
+   { "action": "scroll", "value": "up" | "down" | "top" | "bottom" }
+
+5. ACCESSIBILITY (for feature toggles):
+   { "action": "FEATURE_CODE" }
+   Feature Codes: dark_mode, light_mode, high_contrast, grayscale, invert, toggle_ruler, toggle_guide, toggle_mask, toggle_spotlight, toggle_magnifier, toggle_links, toggle_headings, toggle_buttons, toggle_images, toggle_animations, toggle_tts, increase_font, decrease_font, reset_font, reset_all.
+
+6. UNKNOWN:
+   { "action": "none" }
+
+RULES:
+- If the user mentions a specific button or link text (e.g., "click Contact"), find the matching element in the provided context and return a "click_element" action with its ID.
+- Be flexible with language (English, Urdu, Hindi, etc.). Translate the intent to the action.
+- If the command is vague (e.g., "go down"), use scroll.
+- If the user wants to search or type, use "type_text".
+- Pioritize accessibility commands if the intent matches them.
+`;
+
+            const userPrompt = `User Command: "${text}"
+            
+Current Page Context:
+URL: ${context?.url || 'Unknown'}
+Title: ${context?.title || 'Unknown'}
+Interactive Elements:
+${JSON.stringify(context?.elements || [], null, 2)}
+`;
+
             const response = await client.chat.completions.create({
                 model: "gpt-3.5-turbo",
                 messages: [
-                    {
-                        role: "system",
-                        content: `You are a voice command parser for website accessibility. The user will speak in any language (English, Urdu, Hindi, Arabic, etc.). 
-                        
-Understand their intent and return ONLY one of these action codes. Be very flexible with synonyms and related phrases:
-- scroll_down (scroll down, go down, move down, more, niche, neeche, نیچے)
-- scroll_up (scroll up, go up, move up, less, upar, اوپر)
-- go_top (top of page, start, beginning, shuru, شروع)
-- go_bottom (bottom of page, end, finish, akhir, آخر)
-- go_back (go back, previous, return, wapas, piche, واپس, پیچھے)
-- go_forward (go forward, next, ahead, aage, آگے)
-- refresh (refresh, reload, restart page, dobara loader, تازہ کریں)
-- click (click, select, press, push, chuno, دباؤ, چنیں)
-- next_link (next link, move to link, agla link, اگلا لنک)
-- next_button (next button, move to button, agla button, اگلا بٹن)
-- increase_font (bigger text, larger font, zoom in text, bada karo, بڑا کریں)
-- decrease_font (smaller text, tiny font, zoom out text, chota karo, چھوٹا کریں)
-- dark_mode (dark mode, night mode, black theme, andhera, کالی تھیم, اندھیرا)
-- high_contrast (high contrast, sharp colors, clear view, wazeh, واضح)
-- none (if you cannot determine the action or it's just random chatter)
-
-IMPORTANT:
-1. Focus on the INTENT, not just literal words.
-2. If the user says something like "make it dark", map it to dark_mode.
-3. If the user says "neeche jao", map it to scroll_down.
-4. Return ONLY the lowercase action code string, no punctuation.`
-                    },
-                    {
-                        role: "user",
-                        content: text
-                    }
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: userPrompt }
                 ],
-                max_tokens: 50,
+                max_tokens: 150,
+                response_format: { type: "json_object" }
             });
 
-            return response.choices[0].message.content.trim().toLowerCase();
+            const content = response.choices[0].message.content;
+            return JSON.parse(content);
+
         } catch (error) {
             console.error('OpenAI Voice Command Error:', error);
-            return 'none';
+            return { action: 'none' };
         }
     }
 }

@@ -22,7 +22,7 @@ router.post('/', async (req, res) => {
 
         const feedback = await newFeedback.save();
 
-   
+
         try {
             await sendFeedbackEmail({ name, email, rating, answers, comment });
         } catch (mailErr) {
@@ -32,7 +32,7 @@ router.post('/', async (req, res) => {
         res.status(201).json(feedback);
     } catch (err) {
         console.error('Feedback submission error:', err.message);
-        res.status(500).send('Server Error');
+        res.status(500).json({ error: err.message || 'Server Error' });
     }
 });
 

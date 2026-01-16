@@ -30,7 +30,7 @@ router.post('/', async (req, res) => {
         res.status(201).json(contact);
     } catch (err) {
         console.error('Contact submission error:', err.message);
-        res.status(500).send('Server Error');
+        res.status(500).json({ error: err.message || 'Server Error' });
     }
 });
 

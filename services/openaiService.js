@@ -74,14 +74,12 @@ class OpenAIService {
                 throw new Error('OpenAI client is not initialized.');
             }
 
-            const mp3 = await client.audio.speech.create({
+            return await client.audio.speech.create({
                 model: "tts-1",
                 voice: voice,
                 input: text,
                 speed: speed,
             });
-
-            return Buffer.from(await mp3.arrayBuffer());
         } catch (error) {
             console.error('OpenAI TTS Error:', error);
             throw new Error(`Failed to generate audio via OpenAI: ${error.message}`);

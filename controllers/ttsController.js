@@ -10,6 +10,9 @@ class TtsController {
             const voice = params.voice || 'alloy';
             const speed = parseFloat(params.speed) || 1.0;
 
+
+            console.log(`[TTS] Request received: voice=${voice}, speed=${speed}, textLength=${text?.length}`);
+
             if (!text) {
                 return res.status(400).json({ error: 'Text content is required' });
             }
@@ -23,8 +26,10 @@ class TtsController {
             const openAiVoices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'];
 
             if (openAiVoices.includes(voice)) {
+                console.log(`[TTS] Using OpenAI Service for voice: ${voice}`);
                 response = await openaiService.streamAudio(safeText, voice, speed);
             } else {
+                console.log(`[TTS] Using ElevenLabs Service for voice: ${voice}`);
                 // Assume it's an ElevenLabs Voice ID if not an OpenAI voice
                 response = await elevenLabsService.streamAudio(safeText, voice, speed);
             }

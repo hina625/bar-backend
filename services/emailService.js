@@ -17,7 +17,12 @@ export const sendFeedbackEmail = async (feedbackData) => {
     const { name, email, rating, answers, comment } = feedbackData;
 
     const formattedAnswers = Object.entries(answers)
-        .map(([key, value]) => `Question ${key.replace('q', '')}: ${value ? 'Yes' : 'No'}`)
+        .sort(([keyA], [keyB]) => {
+            const numA = parseInt(keyA.replace(/[^0-9]/g, '')) || 0;
+            const numB = parseInt(keyB.replace(/[^0-9]/g, '')) || 0;
+            return numA - numB;
+        })
+        .map(([key, value], index) => `Question ${index + 1}: ${value ? 'Yes' : 'No'}`)
         .join('\n');
 
     const mailOptions = {
@@ -270,9 +275,15 @@ export const sendFeedbackEmail = async (feedbackData) => {
 
                                             <div class="section-title">Survey Responses</div>
                                             <div class="content-box">
-                                                ${Object.entries(answers).map(([key, value]) => `
+                                                ${Object.entries(answers)
+                                                    .sort(([keyA], [keyB]) => {
+                                                        const numA = parseInt(keyA.replace(/[^0-9]/g, '')) || 0;
+                                                        const numB = parseInt(keyB.replace(/[^0-9]/g, '')) || 0;
+                                                        return numA - numB;
+                                                    })
+                                                    .map(([key, value], index) => `
                                                     <div class="answer-row">
-                                                        <div class="question-text">Question ${key.replace('q', '')}</div>
+                                                        <div class="question-text">Question ${index + 1}</div>
                                                         <span class="status-badge ${value ? 'status-yes' : 'status-no'}">
                                                             ${value ? 'Yes' : 'No'}
                                                         </span>
@@ -483,18 +494,43 @@ export const sendContactEmail = async (contactData) => {
                     }
                     .reply-button {
                         display: inline-block;
-                        padding: 12px 32px;
-                        background-color: #3b82f6;
-                        color: #ffffff;
+                        padding: 14px 36px;
+                        background-color: #1e40af;
+                        color: #ffffff !important;
                         text-decoration: none;
                         border-radius: 4px;
-                        font-weight: 600;
+                        font-weight: 700;
                         font-size: 14px;
                         text-transform: uppercase;
-                        letter-spacing: 0.5px;
+                        letter-spacing: 1px;
+                        border: 2px solid #1e40af;
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
                     }
                     .reply-button:hover {
-                        background-color: #2563eb;
+                        background-color: #1e3a8a;
+                        border-color: #1e3a8a;
+                    }
+                    .reply-button-table {
+                        background-color: #1e40af;
+                        border-radius: 4px;
+                        border-collapse: separate;
+                        mso-table-lspace: 0pt;
+                        mso-table-rspace: 0pt;
+                    }
+                    .reply-button-cell {
+                        padding: 14px 36px;
+                        text-align: center;
+                        background-color: #1e40af;
+                        border-radius: 4px;
+                    }
+                    .reply-button-text {
+                        color: #ffffff !important;
+                        font-weight: 700;
+                        font-size: 14px;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                        text-decoration: none;
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                     }
                     .email-footer {
                         background-color: #f8fafc;
@@ -561,9 +597,15 @@ export const sendContactEmail = async (contactData) => {
                                             </div>
 
                                             <div class="action-section">
-                                                <a href="mailto:${email}?subject=Re: ${encodeURIComponent(subject || 'Contact Request')}" class="reply-button">
-                                                    Reply to ${name}
-                                                </a>
+                                                <table class="reply-button-table" cellpadding="0" cellspacing="0" border="0" align="center" style="background-color: #1e40af; border-radius: 4px;">
+                                                    <tr>
+                                                        <td class="reply-button-cell" align="center" style="background-color: #1e40af; border-radius: 4px; padding: 14px 36px;">
+                                                            <a href="mailto:${email}?subject=Re: ${encodeURIComponent(subject || 'Contact Request')}" class="reply-button-text" style="color: #ffffff; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; display: inline-block;">
+                                                                Reply to ${name}
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                </table>
                                             </div>
                                         </td>
                                     </tr>

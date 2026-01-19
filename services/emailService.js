@@ -16,13 +16,23 @@ const transporter = nodemailer.createTransport({
 export const sendFeedbackEmail = async (feedbackData) => {
     const { name, email, rating, answers, comment } = feedbackData;
 
+    // Question text mapping
+    const questionTexts = {
+        q1: "Is the toolbar easy to use?",
+        q2: "Did you find the accessibility features helpful?",
+        q5: "Is the layout easy to navigate?"
+    };
+
     const formattedAnswers = Object.entries(answers)
         .sort(([keyA], [keyB]) => {
             const numA = parseInt(keyA.replace(/[^0-9]/g, '')) || 0;
             const numB = parseInt(keyB.replace(/[^0-9]/g, '')) || 0;
             return numA - numB;
         })
-        .map(([key, value], index) => `Question ${index + 1}: ${value ? 'Yes' : 'No'}`)
+        .map(([key, value], index) => {
+            const questionText = questionTexts[key] || `Question ${index + 1}`;
+            return `${questionText}: ${value ? 'Yes' : 'No'}`;
+        })
         .join('\n');
 
     const mailOptions = {
@@ -275,20 +285,30 @@ export const sendFeedbackEmail = async (feedbackData) => {
 
                                             <div class="section-title">Survey Responses</div>
                                             <div class="content-box">
-                                                ${Object.entries(answers)
-                                                    .sort(([keyA], [keyB]) => {
-                                                        const numA = parseInt(keyA.replace(/[^0-9]/g, '')) || 0;
-                                                        const numB = parseInt(keyB.replace(/[^0-9]/g, '')) || 0;
-                                                        return numA - numB;
-                                                    })
-                                                    .map(([key, value], index) => `
-                                                    <div class="answer-row">
-                                                        <div class="question-text">Question ${index + 1}</div>
-                                                        <span class="status-badge ${value ? 'status-yes' : 'status-no'}">
-                                                            ${value ? 'Yes' : 'No'}
-                                                        </span>
-                                                    </div>
-                                                `).join('')}
+                                                ${(() => {
+                                                    const questionTexts = {
+                                                        q1: "Is the toolbar easy to use?",
+                                                        q2: "Did you find the accessibility features helpful?",
+                                                        q5: "Is the layout easy to navigate?"
+                                                    };
+                                                    return Object.entries(answers)
+                                                        .sort(([keyA], [keyB]) => {
+                                                            const numA = parseInt(keyA.replace(/[^0-9]/g, '')) || 0;
+                                                            const numB = parseInt(keyB.replace(/[^0-9]/g, '')) || 0;
+                                                            return numA - numB;
+                                                        })
+                                                        .map(([key, value]) => {
+                                                            const questionText = questionTexts[key] || `Question ${key}`;
+                                                            return `
+                                                                <div class="answer-row">
+                                                                    <div class="question-text">${questionText}</div>
+                                                                    <span class="status-badge ${value ? 'status-yes' : 'status-no'}">
+                                                                        ${value ? 'Yes' : 'No'}
+                                                                    </span>
+                                                                </div>
+                                                            `;
+                                                        }).join('');
+                                                })()}
                                             </div>
 
                                             ${comment ? `

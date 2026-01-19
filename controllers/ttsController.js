@@ -1,5 +1,6 @@
 import { Readable } from 'stream';
 import openaiService from '../services/openaiService.js';
+import elevenLabsService from '../services/elevenLabsService.js';
 
 class TtsController {
     async streamAudio(req, res) {
@@ -16,7 +17,17 @@ class TtsController {
 
             const safeText = text.substring(0, 4000);
 
-            const response = await openaiService.streamAudio(safeText, voice, speed);
+            let response;
+
+            // OpenAI voices
+            const openAiVoices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'];
+
+            if (openAiVoices.includes(voice)) {
+                response = await openaiService.streamAudio(safeText, voice, speed);
+            } else {
+                // Assume it's an ElevenLabs Voice ID if not an OpenAI voice
+                response = await elevenLabsService.streamAudio(safeText, voice, speed);
+            }
 
             res.set({
                 'Content-Type': 'audio/mpeg',

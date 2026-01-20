@@ -48,7 +48,27 @@ class TtsController {
 
         } catch (error) {
             console.error('TTS Controller Error:', error);
-            res.status(500).json({ error: 'Failed to generate speech' });
+            
+            // Provide more detailed error messages
+            let errorMessage = 'Failed to generate speech';
+            let statusCode = 500;
+            
+            if (error.message) {
+                if (error.message.includes('not initialized') || error.message.includes('API key')) {
+                    errorMessage = 'TTS service is not configured. Please check API keys.';
+                    statusCode = 503;
+                } else if (error.message.includes('network') || error.message.includes('timeout')) {
+                    errorMessage = 'Network error while generating speech. Please try again.';
+                    statusCode = 503;
+                } else {
+                    errorMessage = error.message;
+                }
+            }
+            
+            res.status(statusCode).json({ 
+                error: errorMessage,
+                details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            });
         }
     }
 }

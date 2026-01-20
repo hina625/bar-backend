@@ -2,12 +2,13 @@ import fetch from 'node-fetch';
 
 class ElevenLabsService {
     constructor() {
-        this.apiKey = process.env.ELEVENLABS_API_KEY;
         this.baseUrl = 'https://api.elevenlabs.io/v1';
     }
 
     async streamAudio(text, voiceId, speed = 1.0) {
-        if (!this.apiKey) {
+        const apiKey = process.env.ELEVENLABS_API_KEY;
+
+        if (!apiKey) {
             throw new Error('ELEVENLABS_API_KEY is not set');
         }
 
@@ -27,7 +28,7 @@ class ElevenLabsService {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'xi-api-key': this.apiKey,
+                'xi-api-key': apiKey,
                 'Accept': 'audio/mpeg'
             },
             body: JSON.stringify(body)

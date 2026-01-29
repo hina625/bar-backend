@@ -17,12 +17,12 @@ class ElevenLabsService {
         // For speed control in ElevenLabs, we can use model_id 'eleven_turbo_v2' which supports speed better
         // or use SSML tags for speed control
         const useTurboModel = process.env.ELEVENLABS_USE_TURBO === 'true';
-        const modelId = useTurboModel ? 'eleven_turbo_v2' : 'eleven_multilingual_v2';
-        
+        const modelId = useTurboModel ? 'eleven_turbo_v2_5' : 'eleven_multilingual_v2';
+
         // Format text for better pronunciation of Roman Urdu (not Hindi)
         // Roman Urdu uses English alphabet, so we ensure proper spacing
         const formattedText = text.trim();
-        
+
         const body = {
             text: formattedText,
             model_id: modelId,
@@ -34,15 +34,14 @@ class ElevenLabsService {
             }
         };
 
-        // Speed is handled differently in ElevenLabs v2 - it's a model parameter, not voice setting
-        // For older models, speed might not be fully supported
+
         if (useTurboModel && speed !== 1.0) {
-            // For turbo model, we can adjust output sample rate or use SSML
-            // But for now, we'll note that speed adjustment may be limited
+
             console.log(`[ElevenLabs] Speed parameter (${speed}) requested but may not be fully supported for this voice/model`);
         }
 
-        const response = await fetch(`${this.baseUrl}/text-to-speech/${voiceId}/stream`, {
+        const url = `${this.baseUrl}/text-to-speech/${voiceId}/stream?optimize_streaming_latency=3`;
+        const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -60,7 +59,7 @@ class ElevenLabsService {
             } catch {
                 errorText = await response.text();
             }
-            
+
             // Provide more helpful error messages
             if (response.status === 401) {
                 throw new Error('ElevenLabs API key is invalid or expired. Please check your API key.');

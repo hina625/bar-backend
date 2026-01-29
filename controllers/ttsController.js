@@ -48,6 +48,8 @@ class TtsController {
 
         } catch (error) {
             console.error('TTS Controller Error:', error);
+            console.error('Error Message:', error.message);
+            console.error('Stack:', error.stack);
             
             // Provide more detailed error messages
             let errorMessage = 'Failed to generate speech';
